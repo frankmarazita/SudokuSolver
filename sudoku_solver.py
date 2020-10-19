@@ -1,63 +1,50 @@
-import csv
+from Puzzle import Puzzle, importPuzzle, numUnset
 
-class Puzzle:
+puzzle = importPuzzle('puzzles/puzzle1')
 
-    def __init__(self):
-        self.values = []
+def simpleSolve(puzzle):
 
-    def get(self, x, y):
-        return self.values[x][y]
+    while True:
+        for i in range(9):
+            for j in range(9):
+                number = puzzle.get(i, j)
+                if number['value'] == 0:
+                    for value in range(9):
+                        found = False
+                        if not found:
+                            row = puzzle.getRow(i)
+                            for r in row:
+                                if r['value'] == value + 1:
+                                    found = True
+                                    break
+                        if not found:
+                            col = puzzle.getCol(j)
+                            for c in col:
+                                if c['value'] == value + 1:
+                                    found = True
+                                    break
+                        if not found:
+                            nine = puzzle.getNine(j, i)
+                            for n in nine:
+                                if n['value'] == value + 1:
+                                    found = True
+                                    break
+                        if not found:
+                            number['possible'].append(value + 1)
 
-def importPuzzle(file):
-    with open(file, newline='') as csvfile:
-        data = csv.reader(csvfile, delimiter=',')
-        puzzle = Puzzle()
-        for row in data:
-            dict_row = []
-            for i in row:
-                dict_row.append({'value': i, 'static': i != "0"})
-            puzzle.values.append(dict_row)
-        return puzzle
+        num_added = 0
+        for i in range(9):
+            for j in range(9):
+                number = puzzle.get(i, j)
+                if len(number['possible']) == 1:
+                    number['value'] = number['possible'][0]
+                    num_added += 1
+                number['possible'] = []
 
-def isWin(puzzle):
-    for i in range(9):
-        row = []
-        for j in range(9):
-            row.append(puzzle.get(i, j)['value'])
-        for j in range(9):
-            if str(j + 1) not in row:
-                return False
+        if num_added == 0:
+            break
 
-    for i in range(9):
-        col = []
-        for j in range(9):
-            col.append(puzzle.get(j, i)['value'])
-        for j in range(9):
-            if str(j + 1) not in col:
-                return False
+    return puzzle
 
-    for i in range(3):
-        for j in range(3):
-            nine = []
-            for k in range(3):
-                for l in range(3):
-                    nine.append(puzzle.get(k + i * 3, l + j * 3)['value'])
-            for k in range(9):
-                if str(k + 1) not in nine:
-                    return False
-
-    return True
-
-puzzle = importPuzzle('puzzle1')
-
-num_unset = 0
-
-for i in range(9):
-    for j in range(9):
-        item_dict = puzzle.get(i, j)
-        if not item_dict['static']:
-            num_unset += 1
-
-print(num_unset)
-
-print(isWin(puzzle))
+print(simpleSolve(puzzle))
+print('Win', puzzle.isWin())
