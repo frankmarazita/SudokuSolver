@@ -47,4 +47,4 @@ def simpleSolve(puzzle):
     return puzzle
 
 print(simpleSolve(puzzle))
-print('Win', puzzle.isWin())
+print('Solved:', puzzle.isWin())
